@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+import axios from "axios";
+
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import StatsCard from "../components/StatsCard";
@@ -12,7 +14,8 @@ import { FaPlus } from "react-icons/fa";
 function Dashboard() {
 
   // Add Modal
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] =
+    useState(false);
 
   // Edit Modal
   const [showEditModal, setShowEditModal] =
@@ -22,106 +25,118 @@ function Dashboard() {
   const [selectedTask, setSelectedTask] =
     useState(null);
 
-  // Tasks State
-  const [tasks, setTasks] = useState(() => {
+  // Tasks
+  const [tasks, setTasks] = useState([]);
 
-    const savedTasks =
-      localStorage.getItem("tasks");
+  // Fetch Tasks
+  const fetchTasks = async () => {
 
-    return savedTasks
-      ? JSON.parse(savedTasks)
-      : [
-          {
-            id: 1,
-            title: "Design Dashboard UI",
-            priority: "High",
-            status: "In Progress",
-            date: "20 May 2026",
-          },
+    try {
 
-          {
-            id: 2,
-            title: "Finish Backend API",
-            priority: "Medium",
-            status: "Pending",
-            date: "24 May 2026",
-          },
-        ];
-  });
+      const { data } =
+        await axios.get(
+          "http://localhost:5000/api/tasks"
+        );
 
-  // Save to LocalStorage
+      setTasks(data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  // Load Tasks
   useEffect(() => {
 
-    localStorage.setItem(
-      "tasks",
-      JSON.stringify(tasks)
-    );
+    fetchTasks();
 
-  }, [tasks]);
+  }, []);
 
   // Add Task
-  const addTask = (task) => {
+  const addTask = async (task) => {
 
-    const newTask = {
-      ...task,
-      id: Date.now(),
-    };
+    try {
 
-    setTasks([...tasks, newTask]);
+      await axios.post(
+        "http://localhost:5000/api/tasks",
+        task
+      );
+
+      fetchTasks();
+
+      setShowModal(false);
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
 
   // Delete Task
-  const deleteTask = (id) => {
+  const deleteTask = async (id) => {
 
-    setTasks(
-      tasks.filter(
-        (task) => task.id !== id
-      )
-    );
+    try {
+
+      await axios.delete(
+        `http://localhost:5000/api/tasks/${id}`
+      );
+
+      fetchTasks();
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
 
   // Complete Task
-  const completeTask = (id) => {
+  const completeTask = async (id) => {
 
-    const updatedTasks = tasks.map(
-      (task) => {
+    try {
 
-        if (task.id === id) {
+      await axios.put(
+        `http://localhost:5000/api/tasks/${id}`
+      );
 
-          return {
-            ...task,
-            status: "Completed",
-          };
+      fetchTasks();
 
-        }
+    } catch (error) {
 
-        return task;
-      }
-    );
-
-    setTasks(updatedTasks);
+      console.log(error);
+    }
   };
 
   // Update Task
-  const updateTask = (updatedTask) => {
+  const updateTask = async (
+    updatedTask
+  ) => {
 
-    const updatedTasks = tasks.map(
-      (task) =>
+    try {
 
-        task.id === updatedTask.id
-          ? updatedTask
-          : task
-    );
+      await axios.put(
+        `http://localhost:5000/api/tasks/${updatedTask._id}`,
+        updatedTask
+      );
 
-    setTasks(updatedTasks);
+      fetchTasks();
+
+      setShowEditModal(false);
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
 
   // Open Edit Modal
   const openEditModal = (id) => {
 
-    const taskToEdit = tasks.find(
-      (task) => task.id === id
-    );
+    const taskToEdit =
+      tasks.find(
+        (task) =>
+          task._id === id
+      );
 
     setSelectedTask(taskToEdit);
 
@@ -158,7 +173,8 @@ function Dashboard() {
             value={
               tasks.filter(
                 (task) =>
-                  task.status === "Completed"
+                  task.status ===
+                  "Completed"
               ).length
             }
           />
@@ -168,7 +184,8 @@ function Dashboard() {
             value={
               tasks.filter(
                 (task) =>
-                  task.status !== "Completed"
+                  task.status !==
+                  "Completed"
               ).length
             }
           />
@@ -196,8 +213,8 @@ function Dashboard() {
             {tasks.map((task) => (
 
               <TaskCard
-                key={task.id}
-                id={task.id}
+                key={task._id}
+                id={task._id}
                 title={task.title}
                 priority={task.priority}
                 status={task.status}
@@ -215,7 +232,9 @@ function Dashboard() {
 
         {/* Floating Add Button */}
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() =>
+            setShowModal(true)
+          }
           className="fixed bottom-10 right-10 bg-gradient-to-r from-blue-500 to-purple-500 p-5 rounded-full text-white shadow-2xl hover:scale-110 transition-all duration-300"
         >
 
@@ -236,7 +255,8 @@ function Dashboard() {
         )}
 
         {/* Edit Modal */}
-        {showEditModal && selectedTask && (
+        {showEditModal &&
+          selectedTask && (
 
           <EditTaskModal
             task={selectedTask}

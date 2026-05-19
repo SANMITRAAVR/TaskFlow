@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 
 import userRoutes from "./routes/userRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.get("/", (req, res) => {
   res.send("TaskFlow Backend Running 🚀");

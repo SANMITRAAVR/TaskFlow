@@ -1,8 +1,68 @@
+import { useState } from "react";
+
 import { FaTasks } from "react-icons/fa";
+
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import axios from "axios";
 
 function Login() {
+
+  const navigate = useNavigate();
+
+  const [formData, setFormData] =
+    useState({
+      email: "",
+      password: "",
+    });
+
+  const handleChange = (e) => {
+
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+
+    e.preventDefault();
+
+    try {
+
+      const response =
+        await axios.post(
+          "http://localhost:5000/api/users/login",
+          formData
+        );
+
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify(
+          response.data
+        )
+      );
+
+      alert("Login Successful ✅");
+
+      navigate("/dashboard");
+
+    } catch (error) {
+
+      alert(
+        error.response?.data
+          ?.message ||
+          "Login Failed"
+      );
+    }
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center px-4">
 
@@ -13,9 +73,19 @@ function Login() {
 
       {/* Login Card */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 80 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        initial={{
+          opacity: 0,
+          scale: 0.8,
+          y: 80,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.8,
+        }}
         className="relative z-10 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl p-8 w-full max-w-md"
       >
 
@@ -23,7 +93,9 @@ function Login() {
         <div className="flex flex-col items-center mb-8">
 
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-5 rounded-2xl shadow-lg mb-5">
+
             <FaTasks className="text-white text-4xl" />
+
           </div>
 
           <h1 className="text-5xl font-bold text-white tracking-wide">
@@ -37,21 +109,33 @@ function Login() {
         </div>
 
         {/* Form */}
-        <form className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
 
           <input
             type="email"
+            name="email"
             placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
             className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 outline-none focus:border-blue-500 transition-all"
+            required
           />
 
           <input
             type="password"
+            name="password"
             placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
             className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 outline-none focus:border-purple-500 transition-all"
+            required
           />
 
           <button
+            type="submit"
             className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:scale-105 transition-all duration-300 text-white p-4 rounded-xl font-semibold shadow-lg"
           >
             Login
@@ -61,13 +145,16 @@ function Login() {
 
         {/* Footer */}
         <p className="text-gray-400 text-center mt-6">
+
           Don’t have an account?
+
           <Link
             to="/register"
             className="text-blue-400 ml-2 hover:underline"
           >
             Register
           </Link>
+
         </p>
 
       </motion.div>
