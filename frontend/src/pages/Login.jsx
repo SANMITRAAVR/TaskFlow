@@ -1,5 +1,6 @@
 import { FaTasks } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 function Login() {
   return (
@@ -61,9 +62,12 @@ function Login() {
         {/* Footer */}
         <p className="text-gray-400 text-center mt-6">
           Don’t have an account?
-          <span className="text-blue-400 cursor-pointer ml-2 hover:underline">
+          <Link
+            to="/register"
+            className="text-blue-400 ml-2 hover:underline"
+          >
             Register
-          </span>
+          </Link>
         </p>
 
       </motion.div>
